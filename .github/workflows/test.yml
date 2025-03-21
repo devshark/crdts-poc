@@ -31,23 +31,21 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-          cache: "yarn"
 
       - name: Install dependencies
-        run: yarn install
+        run: npm install
 
       - name: Run lint
-        run: yarn lint
+        run: npm run lint
 
       - name: Run tests
-        run: yarn test
+        run: npm run test
 
-      - name: Cache Yarn dependencies
+      - name: Cache NPM dependencies
         uses: actions/cache@v3
         with:
           path: |
             **/node_modules
-            .yarn/cache
-          key: ${{ runner.os }}-yarn-${{ hashFiles('**/yarn.lock') }}
+          key: ${{ runner.os }}-npm-${{ hashFiles('**/package-lock.json') }}
           restore-keys: |
-            ${{ runner.os }}-yarn-
+            ${{ runner.os }}-npm-
