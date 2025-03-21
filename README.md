@@ -2,24 +2,24 @@
 
 ## Last-Write-Wins (LWW) Element Set
 
-This repository contains an implementation of a Last-Write-Wins (LWW) Element Set, a type of Conflict-free Replicated Data Type (CRDT). This specific implementation uses timestamps to resolve conflicts between concurrent operations, with a bias towards keeping existing values when timestamps are equal.
+Hey there! 🎉 This repo is all about implementing a Last-Write-Wins (LWW) Element Set, which is a cool type of Conflict-free Replicated Data Type (CRDT). Basically, it uses timestamps to sort out any conflicts when things get updated at the same time. And guess what? It leans towards keeping the old values if the timestamps are the same.
 
 ## Features
 
-- Generic implementation supporting any data type
-- Timestamp-based conflict resolution
-- Simple API for setting, getting, and removing values
+- Super generic implementation that works with any data type
+- Timestamps to figure out who wins in a conflict
+- Easy-peasy API for setting, getting, and removing values
 
 ## Testing
 
-The project uses Jest for unit testing. The test suite covers:
+We’re using Jest for unit testing, so you know it’s legit. The test suite covers:
 
-- Basic operations (set, get, remove)
-- Conflict resolution logic
-- Type generics support
-- Error handling
+- Basic stuff (set, get, remove)
+- How it handles conflict resolution
+- Support for type generics
+- Error handling (because who likes bugs?)
 
-To run the tests:
+To run the tests, just do the following:
 
 ```bash
 # Install dependencies
@@ -28,6 +28,14 @@ yarn install
 # Run tests
 yarn test
 
-# Run tests in watch mode
+# If you wanna keep an eye on the tests
 yarn test:watch
 ```
+
+## License
+
+[MIT License](LICENSE)
+
+## Author
+
+Anthony Lim - Senior Backend Software Engineer
