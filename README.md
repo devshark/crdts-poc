@@ -1,6 +1,6 @@
 # Conflict Free Replicated Data Types (CRDTs)
 
-![Tests](https://github.com/anthony.lim/CRDTs/actions/workflows/test.yml/badge.svg)
+[![Run Tests](https://github.com/devshark/crdts-poc/actions/workflows/test.yml/badge.svg)](https://github.com/devshark/crdts-poc/actions/workflows/test.yml)
 
 ## Last-Write-Wins (LWW) Element Set
 
