@@ -1,5 +1,5 @@
 {
-  "name": "CRDTs",
+  "name": "conflict-free-replicated-data-types",
   "packageManager": "yarn@4.6.0",
   "devDependencies": {
     "@types/jest": "^29.5.14",
@@ -9,6 +9,8 @@
   },
   "scripts": {
     "test": "jest",
-    "test:watch": "jest --watch"
+    "test:watch": "jest --watch",
+    "lint": "tsc --noEmit",
+    "build": "tsc"
   }
 }

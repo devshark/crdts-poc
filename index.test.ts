@@ -1,4 +1,4 @@
-import { LastWriteWins, KeyNotFoundError, ElementSet } from "./index";
+import { LastWriteWins, KeyNotFoundError, ElementSet, merge } from "./index";
 
 describe("LastWriteWins", () => {
   let lww: LastWriteWins<string>;
@@ -242,5 +242,188 @@ describe("LastWriteWins", () => {
       const error = new KeyNotFoundError(key);
       expect(error.message).toBe(`Key ${key} not found`);
     });
+  });
+
+  describe("getElements method", () => {
+    it("should return a Map containing all elements", () => {
+      const value1: ElementSet<string> = { value: "value-1", timestamp: 100 };
+      const value2: ElementSet<string> = { value: "value-2", timestamp: 200 };
+
+      lww.set("key1", value1);
+      lww.set("key2", value2);
+
+      const elements = lww.getElements();
+      expect(elements).toBeInstanceOf(Map);
+      expect(elements.size).toBe(2);
+      expect(elements.get("key1")).toBe(value1);
+      expect(elements.get("key2")).toBe(value2);
+    });
+
+    it("should return an empty Map when no elements exist", () => {
+      const elements = lww.getElements();
+      expect(elements).toBeInstanceOf(Map);
+      expect(elements.size).toBe(0);
+    });
+  });
+
+  describe("instance merge method", () => {
+    it("should merge two instances correctly", () => {
+      // First database
+      const db1 = new LastWriteWins<string>();
+      db1.set("key1", { value: "db1-value1", timestamp: 100 });
+      db1.set("key2", { value: "db1-value2", timestamp: 200 });
+
+      // Second database
+      const db2 = new LastWriteWins<string>();
+      db2.set("key2", { value: "db2-value2", timestamp: 150 }); // Older than db1
+      db2.set("key3", { value: "db2-value3", timestamp: 300 }); // New key
+
+      // Merge db2 into db1
+      db1.merge(db2);
+
+      // Check results
+      expect(db1.get("key1")).toBe("db1-value1"); // Unchanged
+      expect(db1.get("key2")).toBe("db1-value2"); // Kept because timestamp is newer
+      expect(db1.get("key3")).toBe("db2-value3"); // Added from db2
+    });
+
+    it("should merge with conflict resolution based on timestamps", () => {
+      // First database
+      const db1 = new LastWriteWins<string>();
+      db1.set("key1", { value: "db1-value1", timestamp: 100 });
+      db1.set("key2", { value: "db1-value2", timestamp: 150 });
+
+      // Second database with newer timestamps
+      const db2 = new LastWriteWins<string>();
+      db2.set("key1", { value: "db2-value1", timestamp: 200 }); // Newer than db1
+      db2.set("key2", { value: "db2-value2", timestamp: 120 }); // Older than db1
+
+      // Merge db2 into db1
+      db1.merge(db2);
+
+      // Check results
+      expect(db1.get("key1")).toBe("db2-value1"); // Updated with newer timestamp
+      expect(db1.get("key2")).toBe("db1-value2"); // Kept because timestamp is newer
+    });
+
+    it("should handle empty database merges", () => {
+      // First database with data
+      const db1 = new LastWriteWins<string>();
+      db1.set("key1", { value: "db1-value1", timestamp: 100 });
+
+      // Empty database
+      const db2 = new LastWriteWins<string>();
+
+      // Merge empty db2 into db1
+      db1.merge(db2);
+
+      // Check results - should be unchanged
+      expect(db1.get("key1")).toBe("db1-value1");
+      expect(db1.getElements().size).toBe(1);
+
+      // Create a new empty db
+      const db3 = new LastWriteWins<string>();
+
+      // Merge db1 into empty db3
+      db3.merge(db1);
+
+      // Check results - should have db1's data
+      expect(db3.get("key1")).toBe("db1-value1");
+      expect(db3.getElements().size).toBe(1);
+    });
+
+    it("should return itself to allow for method chaining", () => {
+      const db1 = new LastWriteWins<string>();
+      db1.set("key1", { value: "db1-value1", timestamp: 100 });
+
+      const db2 = new LastWriteWins<string>();
+      db2.set("key2", { value: "db2-value2", timestamp: 200 });
+
+      const db3 = new LastWriteWins<string>();
+      db3.set("key3", { value: "db3-value3", timestamp: 300 });
+
+      // Chain merges
+      const result = db1.merge(db2).merge(db3);
+
+      // Result should be db1
+      expect(result).toBe(db1);
+
+      // Check merged data
+      expect(db1.get("key1")).toBe("db1-value1");
+      expect(db1.get("key2")).toBe("db2-value2");
+      expect(db1.get("key3")).toBe("db3-value3");
+    });
+
+    it("should work with different data types", () => {
+      // Number type
+      const numberDb1 = new LastWriteWins<number>();
+      numberDb1.set("key1", { value: 42, timestamp: 100 });
+
+      const numberDb2 = new LastWriteWins<number>();
+      numberDb2.set("key2", { value: 84, timestamp: 200 });
+
+      numberDb1.merge(numberDb2);
+
+      expect(numberDb1.get("key1")).toBe(42);
+      expect(numberDb1.get("key2")).toBe(84);
+
+      // Object type
+      type User = { name: string; age: number };
+
+      const userDb1 = new LastWriteWins<User>();
+      userDb1.set("user1", {
+        value: { name: "John", age: 30 },
+        timestamp: 100,
+      });
+
+      const userDb2 = new LastWriteWins<User>();
+      userDb2.set("user2", {
+        value: { name: "Jane", age: 25 },
+        timestamp: 200,
+      });
+
+      userDb1.merge(userDb2);
+
+      expect(userDb1.get("user1")).toEqual({ name: "John", age: 30 });
+      expect(userDb1.get("user2")).toEqual({ name: "Jane", age: 25 });
+    });
+  });
+});
+
+describe("standalone merge function", () => {
+  it("should merge two instances correctly", () => {
+    // First database
+    const db1 = new LastWriteWins<string>();
+    db1.set("key1", { value: "db1-value1", timestamp: 100 });
+    db1.set("key2", { value: "db1-value2", timestamp: 200 });
+
+    // Second database
+    const db2 = new LastWriteWins<string>();
+    db2.set("key2", { value: "db2-value2", timestamp: 150 }); // Older than db1
+    db2.set("key3", { value: "db2-value3", timestamp: 300 }); // New key
+
+    // Merge using the standalone function
+    const result = merge(db1, db2);
+
+    // Check results
+    expect(result.get("key1")).toBe("db1-value1"); // Unchanged
+    expect(result.get("key2")).toBe("db1-value2"); // Kept because timestamp is newer
+    expect(result.get("key3")).toBe("db2-value3"); // Added from db2
+
+    // Result should be the same as db1
+    expect(result).toBe(db1);
+  });
+
+  it("should maintain the original object identity", () => {
+    const db1 = new LastWriteWins<string>();
+    db1.set("key1", { value: "db1-value1", timestamp: 100 });
+
+    const db2 = new LastWriteWins<string>();
+    db2.set("key2", { value: "db2-value2", timestamp: 200 });
+
+    const result = merge(db1, db2);
+
+    expect(result).toBe(db1); // Same object reference
+    expect(result).not.toBe(db2); // Not the second object
   });
 });

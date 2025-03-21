@@ -870,17 +870,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"CRDTs@workspace:.":
-  version: 0.0.0-use.local
-  resolution: "CRDTs@workspace:."
-  dependencies:
-    "@types/jest": "npm:^29.5.14"
-    jest: "npm:^29.7.0"
-    ts-jest: "npm:^29.2.6"
-    typescript: "npm:^5.8.2"
-  languageName: unknown
-  linkType: soft
-
 "abbrev@npm:^3.0.0":
   version: 3.0.0
   resolution: "abbrev@npm:3.0.0"
@@ -1253,6 +1242,17 @@ __metadata:
   checksum: 10c0/c996b1cfdf95b6c90fee4dae37e332c8b6eb7d106430c17d538034c0ad9a1630cb194d2ab37293b1bdd4d779494beee7786d586a50bd9376fd6f7bcc2bd4c98f
   languageName: node
   linkType: hard
+
+"conflict-free-replicated-data-types@workspace:.":
+  version: 0.0.0-use.local
+  resolution: "conflict-free-replicated-data-types@workspace:."
+  dependencies:
+    "@types/jest": "npm:^29.5.14"
+    jest: "npm:^29.7.0"
+    ts-jest: "npm:^29.2.6"
+    typescript: "npm:^5.8.2"
+  languageName: unknown
+  linkType: soft
 
 "convert-source-map@npm:^2.0.0":
   version: 2.0.0
