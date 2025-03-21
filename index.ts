@@ -81,9 +81,18 @@ export class LastWriteWins<T> {
   }
 }
 
+// standalone merge function to merge two LastWriteWins<T> objects
 export function merge<T>(
   a: LastWriteWins<T>,
   b: LastWriteWins<T>
 ): LastWriteWins<T> {
   return a.merge(b);
+}
+
+// standalone merge function to merge multiple LastWriteWins<T> objects
+export function mergeAll<T>(
+  first: LastWriteWins<T>,
+  ...others: LastWriteWins<T>[]
+): LastWriteWins<T> {
+  return others.reduce((acc, db) => acc.merge(db), first);
 }

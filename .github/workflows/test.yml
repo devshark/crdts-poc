@@ -15,6 +15,7 @@ on:
       - index.test.ts
       - package.json
       - jest.config.ts
+  workflow_dispatch:
 
 jobs:
   test:
@@ -38,8 +39,8 @@ jobs:
       - name: Run lint
         run: npm run lint
 
-      - name: Run tests
-        run: npm run test
+      - name: Run tests with code coverage
+        run: npm run test:coverage
 
       - name: Cache NPM dependencies
         uses: actions/cache@v3
